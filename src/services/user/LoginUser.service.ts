@@ -1,5 +1,5 @@
 import { prisma } from "../../prisma/prisma";
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { z } from "zod"
 
 interface LoginUserProps {
@@ -22,7 +22,25 @@ class LoginUserService {
             }
         }
 
-        
+        const alreadyExistUser = await prisma.usuario.findFirst({
+            where: {email: email}
+        })
+
+        if(!alreadyExistUser) {
+            return {message: "Usuario ou senha inválidos."}
+        }
+
+        const passwordCompare = await hash(password, alreadyExistUser.password)
+
+        if(!passwordCompare) {
+            return {message: "Usuario ou senha inválidossss"}
+        }
+
+        return {
+            id: alreadyExistUser.id,
+            name: alreadyExistUser.name,
+            email: alreadyExistUser.email,
+        }
 
     }
 }
