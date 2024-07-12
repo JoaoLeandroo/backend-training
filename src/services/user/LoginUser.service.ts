@@ -1,6 +1,7 @@
 import { prisma } from "../../prisma/prisma";
 import { compare } from "bcryptjs";
 import { z } from "zod"
+import { sign } from "jsonwebtoken"
 
 interface LoginUserProps {
     email: string,
@@ -36,10 +37,23 @@ class LoginUserService {
             return {message: "Usuario ou senha inválidos."}
         }
 
+        const token = sign(
+            {
+                id: alreadyExistUser.id,
+                name: alreadyExistUser.name,
+            },
+            process.env.JWT_SECRET,
+            {
+                subject: alreadyExistUser.id,
+                expiresIn: "30d"
+            }
+        )
+
         return {
             id: alreadyExistUser.id,
             name: alreadyExistUser.name,
             email: alreadyExistUser.email,
+            token: token
         }
 
     }
