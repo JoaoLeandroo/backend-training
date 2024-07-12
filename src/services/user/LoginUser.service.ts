@@ -1,5 +1,5 @@
 import { prisma } from "../../prisma/prisma";
-import { compare, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { z } from "zod"
 
 interface LoginUserProps {
@@ -21,19 +21,19 @@ class LoginUserService {
                 Error: resultParse.error.flatten().fieldErrors
             }
         }
-
+        const emailLowerCase = email.toLowerCase()
         const alreadyExistUser = await prisma.usuario.findFirst({
-            where: {email: email}
+            where: {email: emailLowerCase}
         })
 
         if(!alreadyExistUser) {
             return {message: "Usuario ou senha inválidos."}
         }
 
-        const passwordCompare = await hash(password, alreadyExistUser.password)
+        const passwordCompare = await compare(password, alreadyExistUser.password)
 
         if(!passwordCompare) {
-            return {message: "Usuario ou senha inválidossss"}
+            return {message: "Usuario ou senha inválidos."}
         }
 
         return {
