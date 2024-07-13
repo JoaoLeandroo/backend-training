@@ -27,7 +27,7 @@ model Usuario {
 }
 
 model Training {
-  id String @id @default(uuid())
+  id Int @id @default(autoincrement())
   userId String @unique
   location String[]
   trainingDate DateTime @default(now())
